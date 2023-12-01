@@ -1,13 +1,19 @@
-import { products } from "../../../lib/products";
+import Product from "../../../db/models/Product";
 
-export default function handler(request, response) {
+export default async function handler(request, response) {
+
   const { id } = request.query;
 
-  const product = products.find((product) => product.id === id);
+  try {
+    const product = await Product.findById(id).populate("reviews");
 
-  if (!product) {
-    return response.status(404).json({ status: "Not Found" });
+    if (!product) {
+      return response.status(404).json({ status: "Fish not Found" });
+    }
+
+    response.status(200).json(product);
+  } catch (error) {
+  
+    response.status(500).json({ error: "Internal Server Error" });
   }
-
-  response.status(200).json(product);
 }
